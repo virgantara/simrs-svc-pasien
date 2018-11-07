@@ -1,5 +1,4 @@
-const config = require('config');
-var appConfig = config.get('Simrs.appConfig');
+const appConfig = require('./config/app.json');
 
 const express = require('express'),
   app = express(),

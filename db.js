@@ -1,5 +1,4 @@
-const config = require('config');
-var dbConfig = config.get('Simrs.dbConfig');
+const dbConfig = require('./config/app.json');
 var mysql = require('mysql')
 var pool = mysql.createPool(dbConfig)
 
