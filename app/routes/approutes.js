@@ -3,8 +3,14 @@ module.exports = function(app) {
   var todoList = require('../controller/appController');
 
   // todoList Routes
-  app.route('/pasien/like')
-    .get(todoList.searchLike);
+  app.route('/pasien/rm')
+    .get(todoList.searchRM);
+
+  app.route('/pasien/nama')
+    .get(todoList.searchNama);
+
+  app.route('/p/daftar')
+    .get(todoList.searchPasienDaftar);
     // .post(todoList.create_a_task);
    
   // app.route('/tasks/:taskId')
