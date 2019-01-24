@@ -45,7 +45,7 @@ function getPasienDaftar(key,callback){
         txt += " JOIN a_golpasien g ON g.KodeGol=r.KodeGol ";
         txt += " JOIN b_pendaftaran_rjalan rj ON r.NODAFTAR = rj.NoDaftar";
         txt += " JOIN a_unit u ON rj.KodePoli=u.KodeUnit ";
-        txt += " WHERE p.NAMA LIKE ? OR r.NoMedrec = ? ORDER BY r.TGLDAFTAR DESC LIMIT 2 ;";
+        txt += " WHERE p.NAMA LIKE ? OR r.NoMedrec = ? ORDER BY r.TGLDAFTAR DESC LIMIT 1 ;";
     sql.query(txt,['%'+key+'%',key],function(err, res){
         if(err)
             callback(err,null);
