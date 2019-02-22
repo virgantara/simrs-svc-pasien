@@ -11,6 +11,12 @@ module.exports = function(app) {
 
   app.route('/p/daftar')
     .get(todoList.searchPasienDaftar);
+
+  app.route('/p/daftar/inap')
+    .get(todoList.searchPasienDaftarInap);
+
+  app.route('/p/obat/inap')
+    .post(todoList.syncObatInap);
     // .post(todoList.create_a_task);
    
   // app.route('/tasks/:taskId')

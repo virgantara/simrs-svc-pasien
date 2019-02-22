@@ -4,6 +4,24 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+
+exports.syncObatInap = function(req, res) {
+  var values = [
+    [req.body.id_rawat_inap,req.body.kode_alkes,req.body.keterangan,req.body.nilai,req.body.id_dokter]
+  ];
+
+  Pasien.syncObatInap(req.body.keterangan, values, function(err, values) {
+    
+
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+
 exports.searchRM = function(req, res) {
   Pasien.getPasienByRM(req.query.key, function(err, values) {
     if (err)
@@ -26,6 +44,18 @@ exports.searchNama = function(req, res) {
 
 exports.searchPasienDaftar = function(req, res) {
   Pasien.getPasienDaftar(req.query.key, function(err, values) {
+    
+
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+exports.searchPasienDaftarInap = function(req, res) {
+  Pasien.getPasienDaftarInap(req.query.key, function(err, values) {
     
 
     if (err)

@@ -6,9 +6,9 @@
   "dependencies": {
     "array-unique": "^0.3.2",
     "body-parser": "^1.18.3",
-    "config": "^2.0.1",
+    "config": "^2.0.2",
     "express": "^4.16.4",
-    "moment": "^2.22.2",
+    "moment": "^2.24.0",
     "mysql": "^2.16.0",
     "promise": "^8.0.2"
   },
