@@ -65,3 +65,27 @@ exports.searchPasienDaftarInap = function(req, res) {
 
   });
 };
+
+exports.searchPasienDaftarRM = function(req, res) {
+  Pasien.getPasienDaftarRM(req.query.key, function(err, values) {
+    
+
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+exports.searchPasienDaftarInapRM = function(req, res) {
+  Pasien.getPasienDaftarInapRM(req.query.key, function(err, values) {
+    
+
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};

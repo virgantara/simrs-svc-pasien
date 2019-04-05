@@ -184,6 +184,44 @@ function getPasienByNama(key,callback){
     });
 }
 
+
+function getPasienDaftarRM(key,callback){
+
+    var txt = "SELECT p.NoMedrec, NAMA, ALAMAT, TGLLAHIR, AGAMA, JENSKEL, Desa, r.TGLDAFTAR, r.JamDaftar as jam, g.KodeGol, g.NamaGol, r.NODAFTAR";
+        txt += ", u.KodeUnit, u.NamaUnit, u.unit_tipe  ";
+        txt += " FROM a_pasien p";
+        txt += " JOIN b_pendaftaran r ON p.NoMedrec=r.NoMedrec ";
+        txt += " JOIN a_golpasien g ON g.KodeGol=r.KodeGol ";
+        txt += " JOIN b_pendaftaran_rjalan rj ON r.NODAFTAR = rj.NoDaftar";
+        txt += " JOIN a_unit u ON rj.KodePoli=u.KodeUnit ";
+        txt += " WHERE r.NoMedrec = ? ORDER BY r.TGLDAFTAR DESC LIMIT 1 ;";
+    sql.query(txt,[key],function(err, res){
+        if(err)
+            callback(err,null);
+        else{
+            callback(null, res);
+        }
+    });
+}
+
+function getPasienDaftarRawatInapRM(key,callback){
+
+    var txt = "SELECT p.NoMedrec, NAMA, ALAMAT, TGLLAHIR, AGAMA, JENSKEL, Desa, r.tanggal_masuk as TGLDAFTAR, r.jam_masuk as jam, g.KodeGol, g.NamaGol, r.kode_rawat as NODAFTAR";
+        txt += ", dk.id_kamar as KodeUnit, dk.nama_kamar as NamaUnit, d.id_dokter, d.nama_dokter, r.id_rawat_inap ";
+        txt += " FROM a_pasien p";
+        txt += " JOIN tr_rawat_inap r ON p.NoMedrec=r.pasien_id ";
+        txt += " LEFT JOIN dm_dokter d ON r.dokter_id=d.id_dokter ";
+        txt += " JOIN a_golpasien g ON g.KodeGol=r.jenis_pasien ";
+        txt += " JOIN dm_kamar dk ON dk.id_kamar = r.kamar_id ";
+        txt += " WHERE p.NoMedrec = ? AND status_inap <> 2 ORDER BY r.datetime_masuk DESC LIMIT 10;";
+    sql.query(txt,[key],function(err, res){
+        if(err)
+            callback(err,null);
+        else
+            callback(null, res);
+    });
+}
+
 function getPasienDaftar(key,callback){
 
     var txt = "SELECT p.NoMedrec, NAMA, ALAMAT, TGLLAHIR, AGAMA, JENSKEL, Desa, r.TGLDAFTAR, r.JamDaftar as jam, g.KodeGol, g.NamaGol, r.NODAFTAR";
@@ -208,7 +246,7 @@ function getPasienDaftarRawatInap(key,callback){
         txt += ", dk.id_kamar as KodeUnit, dk.nama_kamar as NamaUnit, d.id_dokter, d.nama_dokter, r.id_rawat_inap ";
         txt += " FROM a_pasien p";
         txt += " JOIN tr_rawat_inap r ON p.NoMedrec=r.pasien_id ";
-        txt += " JOIN dm_dokter d ON r.dokter_id=d.id_dokter ";
+        txt += " LEFT JOIN dm_dokter d ON r.dokter_id=d.id_dokter ";
         txt += " JOIN a_golpasien g ON g.KodeGol=r.jenis_pasien ";
         txt += " JOIN dm_kamar dk ON dk.id_kamar = r.kamar_id ";
         txt += " WHERE (p.NAMA LIKE ? OR r.pasien_id = ?) AND status_inap <> 2 ORDER BY r.datetime_masuk DESC LIMIT 10;";
@@ -225,6 +263,8 @@ Pasien.getPasienByRM = getPasienByRM;
 Pasien.getPasienByNama = getPasienByNama;
 Pasien.getPasienDaftar = getPasienDaftar;
 Pasien.getPasienDaftarInap = getPasienDaftarRawatInap;
+Pasien.getPasienDaftarRM = getPasienDaftarRM;
+Pasien.getPasienDaftarInapRM = getPasienDaftarRawatInapRM;
 Pasien.syncObatInap = syncObatInap;
 
 
