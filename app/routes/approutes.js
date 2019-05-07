@@ -2,6 +2,9 @@
 module.exports = function(app) {
   var todoList = require('../controller/appController');
 
+  app.route('/simrs/poli/update')
+    .post(todoList.updateTagihan);
+
   // todoList Routes
   app.route('/pasien/rm')
     .get(todoList.searchRM);

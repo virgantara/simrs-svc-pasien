@@ -13,6 +13,51 @@ var Pasien = function(task){
 
 
 
+function updateTagihan(params,callback){
+
+    let p = editTagihanPoli(params);
+    p.then(res => {
+
+        callback(null,res);
+    })
+    .catch(err => {
+        console.log(err);
+        callback(err, null);
+    });
+}
+
+function editTagihanPoli(params){
+    return new Promise((resolve,reject)=>{
+        
+        sql.getConnection(function(err,conn){
+                       
+            conn.beginTransaction(function(err){
+                
+                var txt = "UPDATE tr_rawat_jalan_tindakan SET status_bayar = ? WHERE kode_trx = ?; ";
+                conn.query(txt,[params.status_bayar, params.kode_trx],function(err, res){
+                    if(err){
+                        conn.rollback(function(){
+                            reject(err);    
+                        });   
+                    }
+
+                    conn.commit(function(err){
+                        if(err){
+                            conn.rollback(function(){
+                                reject(err);    
+                            });   
+                        }
+
+                        resolve(res);
+                        
+                    });
+                });    
+            });
+        });
+    });
+}
+
+
 function selectResep(kode_trx){
     return new Promise((resolve, reject)=>{
          var txt = "SELECT * FROM tr_rawat_inap_alkes_obat";
@@ -266,6 +311,6 @@ Pasien.getPasienDaftarInap = getPasienDaftarRawatInap;
 Pasien.getPasienDaftarRM = getPasienDaftarRM;
 Pasien.getPasienDaftarInapRM = getPasienDaftarRawatInapRM;
 Pasien.syncObatInap = syncObatInap;
-
+Pasien.updateTagihan = updateTagihan;
 
 module.exports= Pasien;

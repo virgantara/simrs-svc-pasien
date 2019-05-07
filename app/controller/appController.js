@@ -4,6 +4,15 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.updateTagihan = function(req, res) {
+  Pasien.updateTagihan(req.body, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
 
 exports.syncObatInap = function(req, res) {
   var values = [
