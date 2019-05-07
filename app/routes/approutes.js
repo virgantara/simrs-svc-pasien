@@ -12,6 +12,9 @@ module.exports = function(app) {
   app.route('/pasien/nama')
     .get(todoList.searchNama);
 
+  app.route('/pasien/list')
+    .get(todoList.getListPasien);
+
   app.route('/p/daftar')
     .get(todoList.searchPasienDaftar);
 

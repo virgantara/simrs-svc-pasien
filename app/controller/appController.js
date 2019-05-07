@@ -4,6 +4,16 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.getListPasien = function(req, res) {
+  Pasien.getListPasien(req.query.limit, req.query.page, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
 exports.updateTagihan = function(req, res) {
   Pasien.updateTagihan(req.body, function(err, values) {
     if (err)

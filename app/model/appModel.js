@@ -11,7 +11,18 @@ var Pasien = function(task){
    
 };
 
-
+function getListPasien(limit,page ,callback){
+    let offset = eval(page) ? (eval(page) - 1) * eval(limit) : 0;
+    var txt = "SELECT NoMedrec as custid, NAMA as nama, ALAMAT as alamat, JENSKEL as jk FROM a_pasien ORDER BY NoMedrec LIMIT "+limit+" OFFSET "+offset;
+    
+    sql.query(txt,[],function(err, res){
+        if(err)
+            callback(err,null);
+        else{
+            callback(null,res);
+        }
+    });
+}
 
 function updateTagihan(params,callback){
 
@@ -312,5 +323,6 @@ Pasien.getPasienDaftarRM = getPasienDaftarRM;
 Pasien.getPasienDaftarInapRM = getPasienDaftarRawatInapRM;
 Pasien.syncObatInap = syncObatInap;
 Pasien.updateTagihan = updateTagihan;
+Pasien.getListPasien = getListPasien;
 
 module.exports= Pasien;
