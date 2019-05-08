@@ -11,6 +11,76 @@ var Pasien = function(task){
    
 };
 
+
+function updateTagihanObat(params,callback){
+    let p = getTagihanObat(params);
+    p.then(res=>{
+        let idri = res[0].id_rawat_inap;
+        let terbayar = params.terbayar;
+
+        return editTagihanObatAlkes(idri, terbayar,params.status_bayar)
+    })
+    .then(res=>{
+        return editTagihanObat(params);
+    })
+    .then(res => {
+        callback(null,res);
+    })
+    .catch(err => {
+        console.log(err);
+        callback(err, null);
+    });
+}
+
+function getTagihanObat(params){
+    return new Promise((resolve,reject)=>{
+        var txt = "SELECT id, id_rawat_inap, nilai FROM tr_rawat_inap_alkes_obat WHERE keterangan = ?; ";
+                
+        sql.query(txt,[params.kode_trx],function(err, res){
+            if(err)
+                reject(err);
+            else{
+                resolve(res);
+            }
+        });
+        
+    });
+}
+
+function editTagihanObatAlkes(idri, nilai, status_bayar){
+    return new Promise((resolve,reject)=>{
+        var txt ="";
+        if(status_bayar == 0)
+            txt += "UPDATE tr_rawat_inap_alkes SET biaya_irna = biaya_irna + "+nilai+" WHERE id_rawat_inap = ? AND id_alkes = 1; ";
+        else
+            txt += "UPDATE tr_rawat_inap_alkes SET biaya_irna = biaya_irna - "+nilai+" WHERE id_rawat_inap = ? AND id_alkes = 1; ";
+                
+        sql.query(txt,[idri],function(err, res){
+            if(err)
+                reject(err);
+            else{
+                resolve(res);
+            }
+        });
+       
+    });
+}
+
+function editTagihanObat(params){
+    return new Promise((resolve,reject)=>{
+        var txt = "UPDATE tr_rawat_inap_alkes_obat SET nilai = ? WHERE keterangan = ?; ";
+        let nilai = params.status_bayar == 1 ? 0 : params.terbayar;
+        sql.query(txt,[nilai, params.kode_trx],function(err, res){
+            if(err)
+                reject(err);
+            else{
+                resolve(res);
+            }
+        });
+        
+    });
+}
+
 function getListPasien(limit,page ,callback){
     let offset = eval(page) ? (eval(page) - 1) * eval(limit) : 0;
     var txt = "SELECT NoMedrec as custid, NAMA as nama, ALAMAT as alamat, JENSKEL as jk FROM a_pasien ORDER BY NoMedrec LIMIT "+limit+" OFFSET "+offset;
@@ -324,5 +394,6 @@ Pasien.getPasienDaftarInapRM = getPasienDaftarRawatInapRM;
 Pasien.syncObatInap = syncObatInap;
 Pasien.updateTagihan = updateTagihan;
 Pasien.getListPasien = getListPasien;
+Pasien.updateTagihanObat = updateTagihanObat;
 
 module.exports= Pasien;
