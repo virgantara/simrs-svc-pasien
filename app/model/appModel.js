@@ -15,10 +15,16 @@ var Pasien = function(task){
 function updateTagihanObat(params,callback){
     let p = getTagihanObat(params);
     p.then(res=>{
-        let idri = res[0].id_rawat_inap;
-        let terbayar = params.terbayar;
+        if(res.length > 0){
+            let idri = res[0].id_rawat_inap;
+            let terbayar = params.terbayar;
+            return editTagihanObatAlkes(idri, terbayar,params.status_bayar)
+        }
 
-        return editTagihanObatAlkes(idri, terbayar,params.status_bayar)
+        else
+            return null;
+        
+        
     })
     .then(res=>{
         return editTagihanObat(params);
