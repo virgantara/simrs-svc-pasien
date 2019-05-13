@@ -4,6 +4,16 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.getRekapKunjungan = function(req, res) {
+  Pasien.getRekapKunjungan(req.query.startdate, req.query.enddate, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
 exports.updateTagihanObat = function(req, res) {
   Pasien.updateTagihanObat(req.body, function(err, values) {
     if (err)

@@ -11,6 +11,81 @@ var Pasien = function(task){
    
 };
 
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+
+function getRekapKunjungan(startdate, enddate,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT * FROM a_unit WHERE unit_tipe = 2 ORDER BY NamaUnit;";
+        sql.query(txt,[],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        
+        var i = 0;
+
+        for(var idx=0;idx < result.length;idx++){
+            let tmp = result[idx];
+            var txt = "SELECT COUNT(*) as total FROM b_pendaftaran_rjalan bj ";
+                txt += " JOIN b_pendaftaran b ON bj.NoDaftar = b.NODAFTAR ";
+                txt += " WHERE bj.KodePoli = ? AND b.TGLDAFTAR BETWEEN ? AND ? ;"
+
+            sql.query(txt,[tmp.KodeUnit, startdate, enddate],function(err, res){
+                if(err)
+                    callback(err,null);
+                else
+                {
+
+                    var obj = new Object;
+                    obj.KodeUnit = tmp.KodeUnit;
+                    obj.NamaUnit = tmp.NamaUnit;
+                    obj.Total = res[0].total;
+                    list.push(obj);
+                    if(i >= result.length - 1){
+                        callback(null,list);
+                    }
+
+                    i++;
+                }
+            });
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+
+function getDiseases(startdate, enddate,callback){
+    var sd = startdate + ' 00:00:01';
+    var ed = enddate + ' 23:59:59';
+    var txt = "SELECT c.kode_icd, i.dtd_kode FROM b_pendaftaran_coding c WHERE ";
+        txt += " JOIN m_icd i ON i.kode = c.kode_icd ";
+        txt += " c.created_at BETWEEN ? AND ?;";
+    sql.query(txt,[sd, ed],function(err, res){
+        if(err){
+            callback(err,null);
+        }
+        else{
+
+            callback(null, res);
+        }
+    });
+}
 
 function updateTagihanObat(params,callback){
     let p = getTagihanObat(params);
@@ -401,5 +476,6 @@ Pasien.syncObatInap = syncObatInap;
 Pasien.updateTagihan = updateTagihan;
 Pasien.getListPasien = getListPasien;
 Pasien.updateTagihanObat = updateTagihanObat;
+Pasien.getRekapKunjungan = getRekapKunjungan;
 
 module.exports= Pasien;
