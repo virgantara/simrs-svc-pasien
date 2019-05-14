@@ -23,7 +23,7 @@ function getRekapKunjungan(startdate, enddate,callback){
     var list = [];
 
     let p = new Promise(function(resolve, reject){
-        var txt = "SELECT * FROM a_unit WHERE unit_tipe = 2 ORDER BY NamaUnit;";
+        var txt = "SELECT * FROM a_unit WHERE unit_tipe = 2 ORDER BY NamaUnit ;";
         sql.query(txt,[],function(err, res){
             if(err)
                 reject(err);
