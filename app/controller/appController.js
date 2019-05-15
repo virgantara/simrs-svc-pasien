@@ -4,6 +4,36 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.countKunjunganGolonganByKode = function(req, res) {
+  Pasien.countKunjunganGolonganByKode(req.query.kode, req.query.startdate, req.query.enddate, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+exports.getListGolongan = function(req, res) {
+  Pasien.getListGolongan(req.query.startdate, req.query.enddate,function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+exports.getKunjunganGolongan = function(req, res) {
+  Pasien.getKunjunganGolongan(req.query.startdate, req.query.enddate, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
 exports.getRekapKunjunganRawatInap = function(req, res) {
   Pasien.getRekapKunjunganRawatInap(req.query.startdate, req.query.enddate, function(err, values) {
     if (err)

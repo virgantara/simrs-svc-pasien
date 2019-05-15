@@ -18,6 +18,86 @@ async function asyncForEach(array, callback) {
 }
 
 
+function getListGolongan(startdate, enddate, callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT g.KodeGol, g.NamaGol, count(NODAFTAR) as Total FROM a_golpasien g ";
+            txt += " JOIN b_pendaftaran b ON b.KodeGol = g.KodeGol ";
+            txt += " WHERE b.TGLDAFTAR BETWEEN ? AND ? ";
+            txt += " GROUP BY g.KodeGol, g.NamaGol ORDER BY Total DESC LIMIT 10 ;";
+        sql.query(txt,[startdate, enddate],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+function countKunjunganGolonganByKode(kode_gol, startdate, enddate,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT COUNT(*) as total FROM b_pendaftaran b ";
+            txt += " WHERE b.KodeGol = ? AND b.TGLDAFTAR BETWEEN ? AND ? ;"
+        sql.query(txt,[kode_gol,startdate, enddate],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result[0].total);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+function getKunjunganGolongan(startdate, enddate,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT g.KodeGol, g.NamaGol, count(NODAFTAR) as Total FROM a_golpasien g ";
+            txt += " JOIN b_pendaftaran b ON b.KodeGol = g.KodeGol ";
+            txt += " WHERE b.TGLDAFTAR BETWEEN ? AND ? ";
+            txt += " GROUP BY g.KodeGol, g.NamaGol ORDER BY Total DESC  ;";
+        sql.query(txt,[startdate, enddate],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+
 function getRekapKunjunganRawatInap(startdate, enddate,callback){
 
     var list = [];
@@ -48,7 +128,9 @@ function getRekapKunjunganRawatInap(startdate, enddate,callback){
                     var obj = new Object;
                     obj.NamaUnit = tmp.nama_kamar;
                     obj.Total = res[0].total;
-                    list.push(obj);
+
+                    if(res[0].total > 0)                    
+                        list.push(obj);
 
                     if(i >= result.length - 1){
                         callback(null,list);
@@ -100,7 +182,8 @@ function getRekapKunjungan(startdate, enddate,callback){
                     obj.KodeUnit = tmp.KodeUnit;
                     obj.NamaUnit = tmp.NamaUnit;
                     obj.Total = res[0].total;
-                    list.push(obj);
+                    if(res[0].total > 0)
+                        list.push(obj);
                     if(i >= result.length - 1){
                         callback(null,list);
                     }
@@ -526,4 +609,8 @@ Pasien.getListPasien = getListPasien;
 Pasien.updateTagihanObat = updateTagihanObat;
 Pasien.getRekapKunjungan = getRekapKunjungan;
 Pasien.getRekapKunjunganRawatInap = getRekapKunjunganRawatInap;
+Pasien.getKunjunganGolongan = getKunjunganGolongan;
+Pasien.countKunjunganGolonganByKode = countKunjunganGolonganByKode;
+Pasien.getListGolongan = getListGolongan;
+
 module.exports= Pasien;
