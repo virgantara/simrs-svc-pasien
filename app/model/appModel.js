@@ -18,6 +18,54 @@ async function asyncForEach(array, callback) {
 }
 
 
+function getRekapKunjunganRawatInap(startdate, enddate,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT * FROM dm_kamar_master ORDER BY nama_kamar ";
+        sql.query(txt,[],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        var i = 0;
+        for(var idx=0;idx < result.length;idx++){
+
+            let tmp = result[idx];
+            
+            var txt = "SELECT SUM(total) as total FROM (SELECT (select count(id_rawat_inap) ";
+                txt += "FROM tr_rawat_inap where kamar_id = id_kamar AND tanggal_masuk BETWEEN ? AND ?) ";
+                txt += "as total FROM dm_kamar WHERE kamar_master_id = ?) as t;";
+            sql.query(txt,[startdate, enddate,tmp.id],function(err, res){
+                if(err)
+                    callback(err,null);
+                else{
+                    var obj = new Object;
+                    obj.NamaUnit = tmp.nama_kamar;
+                    obj.Total = res[0].total;
+                    list.push(obj);
+
+                    if(i >= result.length - 1){
+                        callback(null,list);
+                    }
+                    i++;
+                }
+            });
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+
 function getRekapKunjungan(startdate, enddate,callback){
 
     var list = [];
@@ -477,5 +525,5 @@ Pasien.updateTagihan = updateTagihan;
 Pasien.getListPasien = getListPasien;
 Pasien.updateTagihanObat = updateTagihanObat;
 Pasien.getRekapKunjungan = getRekapKunjungan;
-
+Pasien.getRekapKunjunganRawatInap = getRekapKunjunganRawatInap;
 module.exports= Pasien;
