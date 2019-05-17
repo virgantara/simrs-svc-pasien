@@ -5,7 +5,7 @@ var Pasien = require('../model/appModel.js');
 var response = require('../../res.js');
 
 exports.countKunjunganGolonganByKode = function(req, res) {
-  Pasien.countKunjunganGolonganByKode(req.query.kode, req.query.startdate, req.query.enddate, function(err, values) {
+  Pasien.countKunjunganGolonganByKode(req.query.kode, req.query.tahun, function(err, values) {
     if (err)
       res.send(err);
 
@@ -15,7 +15,7 @@ exports.countKunjunganGolonganByKode = function(req, res) {
 };
 
 exports.getListGolongan = function(req, res) {
-  Pasien.getListGolongan(req.query.startdate, req.query.enddate,function(err, values) {
+  Pasien.getListGolongan(req.query.tahun ,function(err, values) {
     if (err)
       res.send(err);
 

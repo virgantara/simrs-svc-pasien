@@ -18,16 +18,16 @@ async function asyncForEach(array, callback) {
 }
 
 
-function getListGolongan(startdate, enddate, callback){
+function getListGolongan(tahun, callback){
 
     var list = [];
 
     let p = new Promise(function(resolve, reject){
-        var txt = "SELECT g.KodeGol, g.NamaGol, count(NODAFTAR) as Total FROM a_golpasien g ";
-            txt += " JOIN b_pendaftaran b ON b.KodeGol = g.KodeGol ";
-            txt += " WHERE b.TGLDAFTAR BETWEEN ? AND ? ";
-            txt += " GROUP BY g.KodeGol, g.NamaGol ORDER BY Total DESC LIMIT 10 ;";
-        sql.query(txt,[startdate, enddate],function(err, res){
+        var txt = "SELECT DISTINCT(g.KodeGol), g.NamaGol FROM dash_kunjungan_tahunan d ";
+            txt += " JOIN  a_golpasien g ON d.gol_id = g.KodeGol ";
+            txt += " WHERE d.tahun = ? ";
+            txt += " ORDER BY g.NamaGol ;";
+        sql.query(txt,[tahun],function(err, res){
             if(err)
                 reject(err);
             else
@@ -45,14 +45,14 @@ function getListGolongan(startdate, enddate, callback){
     
 }
 
-function countKunjunganGolonganByKode(kode_gol, startdate, enddate,callback){
+function countKunjunganGolonganByKode(kode_gol, tahun,callback){
 
     var list = [];
 
     let p = new Promise(function(resolve, reject){
-        var txt = "SELECT COUNT(*) as total FROM b_pendaftaran b ";
-            txt += " WHERE b.KodeGol = ? AND b.TGLDAFTAR BETWEEN ? AND ? ;"
-        sql.query(txt,[kode_gol,startdate, enddate],function(err, res){
+        var txt = "SELECT gol_id, bulan, jumlah FROM dash_kunjungan_tahunan d ";
+            txt += " WHERE d.gol_id = ? AND tahun = ? ORDER BY bulan ;"
+        sql.query(txt,[kode_gol,tahun],function(err, res){
             if(err)
                 reject(err);
             else
@@ -61,7 +61,7 @@ function countKunjunganGolonganByKode(kode_gol, startdate, enddate,callback){
     });
 
     p.then(result =>{
-        callback(null,result[0].total);
+        callback(null,result);
     })
     .catch(err=>{
         console.log(err);
