@@ -17,6 +17,56 @@ async function asyncForEach(array, callback) {
   }
 }
 
+function countKunjunganGolongan5tahun(kode_gol,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "select tahun, sum(jumlah) as jumlah from dash_kunjungan_tahunan   ";
+            txt += " where gol_id = ? group by tahun order by tahun DESC limit 5 ;"
+        sql.query(txt,[kode_gol],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+function getListGolonganLastfive(callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT DISTINCT(g.KodeGol), g.NamaGol FROM dash_kunjungan_tahunan d ";
+            txt += " JOIN  a_golpasien g ON d.gol_id = g.KodeGol ";
+            txt += " ORDER BY tahun DESC ;";
+        sql.query(txt,[tahun],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
 
 function getListGolongan(tahun, callback){
 
@@ -611,6 +661,7 @@ Pasien.getRekapKunjungan = getRekapKunjungan;
 Pasien.getRekapKunjunganRawatInap = getRekapKunjunganRawatInap;
 Pasien.getKunjunganGolongan = getKunjunganGolongan;
 Pasien.countKunjunganGolonganByKode = countKunjunganGolonganByKode;
+Pasien.countKunjunganGolongan5tahun = countKunjunganGolongan5tahun;
 Pasien.getListGolongan = getListGolongan;
 
 module.exports= Pasien;

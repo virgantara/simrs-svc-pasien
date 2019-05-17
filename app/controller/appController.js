@@ -4,6 +4,16 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.countKunjunganGolongan5tahun = function(req, res) {
+  Pasien.countKunjunganGolongan5tahun(req.query.kode, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
 exports.countKunjunganGolonganByKode = function(req, res) {
   Pasien.countKunjunganGolonganByKode(req.query.kode, req.query.tahun, function(err, values) {
     if (err)
