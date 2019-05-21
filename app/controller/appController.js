@@ -4,6 +4,29 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.getSexUsiaGolTanggal = function(req, res) {
+  Pasien.getSexUsiaGolTanggal(req.query.kode, req.query.sd, req.query.ed,function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+
+
+exports.getListGolonganLastFive = function(req, res) {
+  Pasien.getListGolonganLastfive(function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+
 exports.countKunjunganGolongan5tahun = function(req, res) {
   Pasien.countKunjunganGolongan5tahun(req.query.kode, function(err, values) {
     if (err)
@@ -25,7 +48,7 @@ exports.countKunjunganGolonganByKode = function(req, res) {
 };
 
 exports.getListGolongan = function(req, res) {
-  Pasien.getListGolongan(req.query.tahun ,function(err, values) {
+  Pasien.getListGolongan(req.query.tahun ,req.query.kode, function(err, values) {
     if (err)
       res.send(err);
 

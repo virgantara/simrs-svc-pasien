@@ -5,7 +5,7 @@ var unique = require("array-unique").immutable;
 // var async = require('async');
 // var await = require('await');
 var Promise = require('promise');
-
+var moment = require('moment');
 //Task object constructor
 var Pasien = function(task){
    
@@ -17,14 +17,46 @@ async function asyncForEach(array, callback) {
   }
 }
 
-function countKunjunganGolongan5tahun(kode_gol,callback){
+function getSexUsiaGolTanggal(gol, sd,ed, callback){
 
     var list = [];
 
     let p = new Promise(function(resolve, reject){
-        var txt = "select tahun, sum(jumlah) as jumlah from dash_kunjungan_tahunan   ";
-            txt += " where gol_id = ? group by tahun order by tahun DESC limit 5 ;"
-        sql.query(txt,[kode_gol],function(err, res){
+        var txt = "select p.`range`, p.JENSKEL as jk, sum(p.`count`) as `count` from";
+            txt += "(select x.`range`,y.`JENSKEL`,y.`umurthn`,";
+            txt += "  y.`count` from( ";
+            txt += "    select '0-5' as `range`,5 as `upper` ,0 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '6-11' as `range`,11 as `upper` ,6 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '12-16' as `range`,16 as `upper` ,12 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '17-25' as `range`,25 as `upper` ,17 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '26-35' as `range`,35 as `upper` ,26 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '36-45' as `range`,45 as `upper` ,36 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '46-55' as `range`,55 as `upper` ,46 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '56-65' as `range`,65 as `upper` ,56 as `lower` ";
+            txt += "    union all  ";
+            txt += "    select '66-keatas' as `range`,120 as `upper` ,65 as `lower` ";
+            txt += "  )x ";
+            txt += "  left join( ";
+            txt += "    select ";
+            txt += "    p.JENSKEL, ";
+            txt += "    count(*) as `count`, ";
+            txt += "    b.umurthn from b_pendaftaran b  ";
+            txt += "    JOIN a_pasien p ON p.NoMedrec = b.NoMedrec ";
+            txt += "    WHERE b.KodeGol= ? AND b.TGLDAFTAR BETWEEN ? AND ? AND  (p.JENSKEL = 'P' OR p.JENSKEL = 'L') ";
+            txt += "    group by b.umurthn,p.JENSKEL ";
+            txt += "  )y ";
+            txt += "  on y.umurthn >= x.`lower` and y.umurthn <= x.`upper` ";
+            txt += ")p ";
+            txt += "group by p.`range`,p.JENSKEL";
+
+        sql.query(txt,[gol, sd, ed],function(err, res){
             if(err)
                 reject(err);
             else
@@ -34,6 +66,47 @@ function countKunjunganGolongan5tahun(kode_gol,callback){
 
     p.then(result =>{
         callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+}
+
+function countKunjunganGolongan5tahun(kode_gol,callback){
+
+    var list = [];
+
+    let p = new Promise(function(resolve, reject){
+        var txt = "select tahun, sum(jumlah) as jumlah from dash_kunjungan_tahunan   ";
+            txt += " where gol_id = ? group by tahun order by tahun DESC limit 5 ;";
+        sql.query(txt,[kode_gol],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        var len = result.length, i, j, stop;
+
+        for (i=0; i < len; i++){
+            for (j=0, stop=len-i; j < stop; j++){
+
+                if (result[j+1] && (result[j].tahun > result[j+1].tahun)){
+                    var temp = result[j];
+                    result[j] = result[j+1];
+                    result[j+1] = temp;
+
+
+                }
+
+                if(i==len -1 && j==stop -1)
+                    callback(null,result);
+            }
+        }
+        
     })
     .catch(err=>{
         console.log(err);
@@ -45,22 +118,35 @@ function countKunjunganGolongan5tahun(kode_gol,callback){
 function getListGolonganLastfive(callback){
 
     var list = [];
+    
+    let pmain = new Promise(function(resolve, reject){
+        let listTahun = [];
+        let yearnow = eval(moment().format('Y'));
+        for(i=yearnow-4;i<=yearnow;i++){
+            listTahun.push(i);
 
-    let p = new Promise(function(resolve, reject){
-        var txt = "SELECT DISTINCT(g.KodeGol), g.NamaGol FROM dash_kunjungan_tahunan d ";
-            txt += " JOIN  a_golpasien g ON d.gol_id = g.KodeGol ";
-            txt += " ORDER BY tahun DESC ;";
-        sql.query(txt,[tahun],function(err, res){
-            if(err)
-                reject(err);
-            else
-                resolve(res);
-        });
+            if(i==yearnow)
+                resolve(listTahun);
+        }
     });
+    pmain
+    .then(result=>{
+        var txt = "SELECT DISTINCT(g.KodeGol), g.NamaGol FROM dash_kunjungan_tahunan d ";
+            txt += " JOIN  a_golpasien g ON d.gol_id = g.KodeGol WHERE tahun IN (?) ";
+            txt += " ORDER BY g.NamaGol ;";
+        sql.query(txt,[result],function(err, res){
+            if(err){
+                console.log(err);
+                callback(err,null);
+            }
+            else{
+                callback(null,res);
+            }
+        });
 
-    p.then(result =>{
-        callback(null,result);
+
     })
+   
     .catch(err=>{
         console.log(err);
         callback(err,null);
@@ -68,7 +154,7 @@ function getListGolonganLastfive(callback){
     
 }
 
-function getListGolongan(tahun, callback){
+function getListGolongan(tahun,kode, callback){
 
     var list = [];
 
@@ -76,8 +162,16 @@ function getListGolongan(tahun, callback){
         var txt = "SELECT DISTINCT(g.KodeGol), g.NamaGol FROM dash_kunjungan_tahunan d ";
             txt += " JOIN  a_golpasien g ON d.gol_id = g.KodeGol ";
             txt += " WHERE d.tahun = ? ";
-            txt += " ORDER BY g.NamaGol ;";
-        sql.query(txt,[tahun],function(err, res){
+        
+        var params = [tahun];
+
+        if(kode){
+            txt += " AND g.KodeGol = ? ";
+            params = [tahun, kode];
+        }
+
+        txt += " ORDER BY g.NamaGol ;";
+        sql.query(txt,params,function(err, res){
             if(err)
                 reject(err);
             else
@@ -663,5 +757,6 @@ Pasien.getKunjunganGolongan = getKunjunganGolongan;
 Pasien.countKunjunganGolonganByKode = countKunjunganGolonganByKode;
 Pasien.countKunjunganGolongan5tahun = countKunjunganGolongan5tahun;
 Pasien.getListGolongan = getListGolongan;
-
+Pasien.getListGolonganLastfive = getListGolonganLastfive;
+Pasien.getSexUsiaGolTanggal = getSexUsiaGolTanggal;
 module.exports= Pasien;

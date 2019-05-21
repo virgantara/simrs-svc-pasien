@@ -5,8 +5,14 @@ module.exports = function(app) {
   app.route('/kunjungan/golongan/count/lastfive')
     .get(todoList.countKunjunganGolongan5tahun);
 
+  app.route('/p/gol/sexusia')
+    .get(todoList.getSexUsiaGolTanggal);
+
   app.route('/p/golongan/list')
     .get(todoList.getListGolongan);
+
+  app.route('/p/golongan/list/five')
+    .get(todoList.getListGolonganLastFive);
 
   app.route('/kunjungan/golongan/count')
     .get(todoList.countKunjunganGolonganByKode);
