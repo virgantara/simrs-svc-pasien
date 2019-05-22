@@ -27,7 +27,7 @@ function getSexUsiaGolTanggal(gol, sd,ed, callback){
             txt += "  y.`count` from( ";
             txt += "    select '0-5' as `range`,5 as `upper` ,0 as `lower` ";
             txt += "    union all  ";
-            txt += "    select '6-11' as `range`,11 as `upper` ,6 as `lower` ";
+            txt += "    select '06-11' as `range`,11 as `upper` ,6 as `lower` ";
             txt += "    union all  ";
             txt += "    select '12-16' as `range`,16 as `upper` ,12 as `lower` ";
             txt += "    union all  ";
