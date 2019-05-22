@@ -17,7 +17,33 @@ async function asyncForEach(array, callback) {
   }
 }
 
-function getSexUsiaGolTanggal(gol, sd,ed, callback){
+function getListUnit(tipe,bulan, tahun, callback){
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT DISTINCT(u.KodeUnit),u.NamaUnit FROM a_unit u ";
+        txt += " JOIN dash_kunjungan_tahunan_unit p ON p.unit_id = u.KodeUnit ";
+        txt += " JOIN b_pendaftaran_rjalan bj ON bj.KodePoli = u.KodeUnit ";
+        txt += " JOIN b_pendaftaran b ON bj.NoDaftar = b.NODAFTAR ";
+        txt += " WHERE p.bulan = ? and p.tahun = ? AND u.unit_tipe = ?  ";
+        txt += " ORDER BY u.NamaUnit ;";
+        sql.query(txt,[bulan, tahun, tipe],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
+function getSexUsiaGolTanggal(tipe, key, sd,ed, callback){
 
     var list = [];
 
@@ -49,14 +75,23 @@ function getSexUsiaGolTanggal(gol, sd,ed, callback){
             txt += "    count(*) as `count`, ";
             txt += "    b.umurthn from b_pendaftaran b  ";
             txt += "    JOIN a_pasien p ON p.NoMedrec = b.NoMedrec ";
-            txt += "    WHERE b.KodeGol= ? AND b.TGLDAFTAR BETWEEN ? AND ? AND  (p.JENSKEL = 'P' OR p.JENSKEL = 'L') ";
+            if(tipe == 'gol'){
+                txt += " WHERE b.KodeGol= ? ";
+            }
+
+            else if(tipe == 'poli'){
+                txt += " JOIN b_pendaftaran_rjalan rj ON rj.NoDaftar = b.NODAFTAR ";
+                txt += " WHERE rj.KodePoli = ? ";
+            }
+            
+            txt += " AND b.TGLDAFTAR BETWEEN ? AND ? AND  (p.JENSKEL = 'P' OR p.JENSKEL = 'L') ";
             txt += "    group by b.umurthn,p.JENSKEL ";
             txt += "  )y ";
             txt += "  on y.umurthn >= x.`lower` and y.umurthn <= x.`upper` ";
             txt += ")p ";
             txt += "group by p.`range`,p.JENSKEL";
 
-        sql.query(txt,[gol, sd, ed],function(err, res){
+        sql.query(txt,[key, sd, ed],function(err, res){
             if(err)
                 reject(err);
             else
@@ -759,4 +794,5 @@ Pasien.countKunjunganGolongan5tahun = countKunjunganGolongan5tahun;
 Pasien.getListGolongan = getListGolongan;
 Pasien.getListGolonganLastfive = getListGolonganLastfive;
 Pasien.getSexUsiaGolTanggal = getSexUsiaGolTanggal;
+Pasien.getListUnit = getListUnit;
 module.exports= Pasien;

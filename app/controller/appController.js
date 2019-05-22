@@ -5,7 +5,7 @@ var Pasien = require('../model/appModel.js');
 var response = require('../../res.js');
 
 exports.getSexUsiaGolTanggal = function(req, res) {
-  Pasien.getSexUsiaGolTanggal(req.query.kode, req.query.sd, req.query.ed,function(err, values) {
+  Pasien.getSexUsiaGolTanggal(req.query.tipe, req.query.key, req.query.sd, req.query.ed,function(err, values) {
     if (err)
       res.send(err);
 
@@ -39,6 +39,16 @@ exports.countKunjunganGolongan5tahun = function(req, res) {
 
 exports.countKunjunganGolonganByKode = function(req, res) {
   Pasien.countKunjunganGolonganByKode(req.query.kode, req.query.tahun, function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
+exports.getListUnit = function(req, res) {
+  Pasien.getListUnit(req.query.tipe ,req.query.bulan, req.query.tahun, function(err, values) {
     if (err)
       res.send(err);
 

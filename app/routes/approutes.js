@@ -11,6 +11,9 @@ module.exports = function(app) {
   app.route('/p/golongan/list')
     .get(todoList.getListGolongan);
 
+  app.route('/p/unit/list')
+    .get(todoList.getListUnit);
+
   app.route('/p/golongan/list/five')
     .get(todoList.getListGolonganLastFive);
 
