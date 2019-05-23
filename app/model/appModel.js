@@ -17,6 +17,30 @@ async function asyncForEach(array, callback) {
   }
 }
 
+function getTopTenPenyakit(tahun, callback){
+    let p = new Promise(function(resolve, reject){
+        var txt = "SELECT d.kode, d.deskripsi as des, p.jumlah as jml FROM m_dtd d ";
+        txt += " JOIN dash_penyakit p ON p.dtd_id = d.kode ";
+        txt += " WHERE p.tahun = ? ";
+        txt += " ORDER BY p.jumlah DESC LIMIT 10;";
+        sql.query(txt,[tahun],function(err, res){
+            if(err)
+                reject(err);
+            else
+                resolve(res);
+        });
+    });
+
+    p.then(result =>{
+        callback(null,result);
+    })
+    .catch(err=>{
+        console.log(err);
+        callback(err,null);
+    });
+    
+}
+
 function getListUnit(tipe,bulan, tahun, callback){
     let p = new Promise(function(resolve, reject){
         var txt = "SELECT DISTINCT(u.KodeUnit),u.NamaUnit FROM a_unit u ";
@@ -795,4 +819,6 @@ Pasien.getListGolongan = getListGolongan;
 Pasien.getListGolonganLastfive = getListGolonganLastfive;
 Pasien.getSexUsiaGolTanggal = getSexUsiaGolTanggal;
 Pasien.getListUnit = getListUnit;
+Pasien.getTopTenPenyakit = getTopTenPenyakit;
+
 module.exports= Pasien;

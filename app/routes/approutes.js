@@ -2,6 +2,9 @@
 module.exports = function(app) {
   var todoList = require('../controller/appController');
 
+   app.route('/p/penyakit/top')
+    .get(todoList.getTopTenPenyakit);
+
   app.route('/kunjungan/golongan/count/lastfive')
     .get(todoList.countKunjunganGolongan5tahun);
 

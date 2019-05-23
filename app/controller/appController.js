@@ -4,6 +4,16 @@ var Pasien = require('../model/appModel.js');
 
 var response = require('../../res.js');
 
+exports.getTopTenPenyakit = function(req, res) {
+  Pasien.getTopTenPenyakit(req.query.tahun,function(err, values) {
+    if (err)
+      res.send(err);
+
+    response.ok(values, res);
+
+  });
+};
+
 exports.getSexUsiaGolTanggal = function(req, res) {
   Pasien.getSexUsiaGolTanggal(req.query.tipe, req.query.key, req.query.sd, req.query.ed,function(err, values) {
     if (err)
